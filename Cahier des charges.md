@@ -10,19 +10,24 @@
 
 ### Règles du jeu
 
-* Respect des déplacements standards de chaque pièce (roi, dame, tour, fou, cavalier, pion).
+* Respect des déplacements standards de chaque pièce : roi, dame, tour, fou, cavalier, pion.
 * Gestion des règles spéciales :
 
   * **Roque** (petit et grand).
   * **Prise en passant**.
   * **Promotion** d’un pion.
-* Détection de l’échec et impossibilité de jouer un coup qui met son propre roi en danger.
+* Détection de l’échec et interdiction de jouer un coup qui met son propre roi en danger.
 
 ### Objectifs
 
 * Permettre à deux joueurs humains de jouer une partie complète d’échecs sur ordinateur.
 * Garantir une séparation claire entre la logique métier (plateau, règles) et l’interface graphique.
 * Assurer un code lisible, testé et maintenable, avec une organisation Git collaborative.
+* Répartition des responsabilités :
+
+  * **Simon (branche `board`)** : plateau et pièces (classe `Board`, `Piece` et sous-classes, `Position`).
+  * **Wiktor (branche `rules`)** : validation des coups, règles spéciales, détection échec/mat/pat.
+  * **Ugo (branche `ui`)** : interface graphique, affichage du plateau et des pièces, interaction joueur.
 
 ### Spécifications techniques
 
@@ -35,4 +40,4 @@
   * `ui` : interface graphique.
 * **Tests** : JUnit 5 pour la validation des règles.
 * **Outils de build** : Gradle ou Maven.
-* **Gestion de versions** : GitHub, avec branches `main`, `develop` et une branche par module (`board`, `rules`, `ui`).
+* **Gestion de versions** : GitHub, avec branches `main`, `develop`, et une branche par module (`board`, `rules`, `ui`).
