@@ -111,10 +111,16 @@ public class ChessUI extends JFrame {
         if (selectedPosition == null) {
             // Si on clique sur une pièce
             if (clickedPiece != null) {
-                selectedPosition = clickedPosition;
-                highlightSelectedSquare();
-                updateStatus("Pièce sélectionnée: " + clickedPiece.getFullName() + 
-                           " - Cliquez sur une case de destination");
+                // Vérifier que c'est le tour du joueur qui possède cette pièce
+                if (clickedPiece.getColor() == board.getCurrentPlayer()) {
+                    selectedPosition = clickedPosition;
+                    highlightSelectedSquare();
+                    updateStatus("Pièce sélectionnée: " + clickedPiece.getFullName() + 
+                               " - Cliquez sur une case de destination");
+                } else {
+                    updateStatus("Ce n'est pas votre tour ! C'est le tour des " + 
+                               board.getCurrentPlayer().getDisplayName());
+                }
             } else {
                 updateStatus("Aucune pièce sur cette case. Cliquez sur une pièce.");
             }
