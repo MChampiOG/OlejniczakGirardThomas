@@ -162,6 +162,8 @@ public class Board {
         piece.setPosition(to);
         piece.markAsMoved();
         
+        // Changer de joueur après un coup valide
+        switchPlayer();
         return true;
     }
     

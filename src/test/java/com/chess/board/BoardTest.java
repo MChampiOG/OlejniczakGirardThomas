@@ -84,7 +84,7 @@ class BoardTest {
     @DisplayName("Déplacement de pièce invalide")
     void testInvalidMove() {
         Position from = new Position(1, 0); // Pion blanc
-        Position to = new Position(3, 0); // Déplacement invalide (2 cases sans être en position de départ)
+        Position to = new Position(4, 0); // Déplacement invalide (3 cases)
         
         assertFalse(board.movePiece(from, to));
         assertNotNull(board.getPieceAt(from));
@@ -95,17 +95,12 @@ class BoardTest {
     @Test
     @DisplayName("Déplacement avec capture")
     void testMoveWithCapture() {
-        // Déplacer un pion blanc
-        board.movePiece(new Position(1, 0), new Position(2, 0));
-        board.switchPlayer();
+        // Préparer une capture simple: placer un pion noir en (2,1)
+        board.setPieceAt(new Position(2, 1), new Pawn(Color.BLACK, new Position(2, 1)));
         
-        // Déplacer un pion noir pour permettre la capture
-        board.movePiece(new Position(6, 1), new Position(4, 1));
-        board.switchPlayer();
-        
-        // Capturer le pion noir
-        Position from = new Position(2, 0);
-        Position to = new Position(4, 1);
+        // Capturer avec le pion blanc de (1,0) vers (2,1)
+        Position from = new Position(1, 0);
+        Position to = new Position(2, 1);
         
         assertTrue(board.movePiece(from, to));
         assertNull(board.getPieceAt(from));
@@ -181,10 +176,13 @@ class BoardTest {
     @Test
     @DisplayName("Position invalide")
     void testInvalidPosition() {
-        assertNull(board.getPieceAt(new Position(-1, 0)));
-        assertNull(board.getPieceAt(new Position(0, -1)));
-        assertNull(board.getPieceAt(new Position(8, 0)));
-        assertNull(board.getPieceAt(new Position(0, 8)));
+        // getPieceAt(null) doit retourner null
         assertNull(board.getPieceAt(null));
+        
+        // La création de positions invalides doit lever une exception
+        assertThrows(IllegalArgumentException.class, () -> new Position(-1, 0));
+        assertThrows(IllegalArgumentException.class, () -> new Position(0, -1));
+        assertThrows(IllegalArgumentException.class, () -> new Position(8, 0));
+        assertThrows(IllegalArgumentException.class, () -> new Position(0, 8));
     }
 }
