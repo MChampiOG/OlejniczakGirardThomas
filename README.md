@@ -44,6 +44,20 @@ mvn exec:java -Dexec.mainClass="com.chess.ChessGame"
 - **Maven 3.6+** (pour la compilation)
 - Environnement graphique (X11 sur Linux, natif sur Windows/Mac)
 
+## Recompiler le JAR
+
+Si vous modifiez le code source, vous pouvez regénérer le JAR exécutable :
+
+```bash
+mvn clean package
+cp target/chess-game-1.0.0.jar ./chess-game.jar
+```
+
+Ou en une seule ligne :
+```bash
+mvn clean package && cp target/chess-game-1.0.0.jar ./chess-game.jar
+```
+
 ## Tests
 
 Exécuter tous les tests :
