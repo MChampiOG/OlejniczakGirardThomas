@@ -23,11 +23,6 @@
 * Permettre à deux joueurs humains de jouer une partie complète d’échecs sur ordinateur.
 * Garantir une séparation claire entre la logique métier (plateau, règles) et l’interface graphique.
 * Assurer un code lisible, testé et maintenable, avec une organisation Git collaborative.
-* Répartition des responsabilités :
-
-  * **Simon (branche `board`)** : plateau et pièces (classe `Board`, `Piece` et sous-classes, `Position`).
-  * **Wiktor (branche `rules`)** : validation des coups, règles spéciales, détection échec/mat/pat.
-  * **Ugo (branche `ui`)** : interface graphique, affichage du plateau et des pièces, interaction joueur.
 
 ### Spécifications techniques
 
