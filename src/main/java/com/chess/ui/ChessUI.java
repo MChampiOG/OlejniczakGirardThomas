@@ -1,8 +1,14 @@
 package com.chess.ui;
 
 import com.chess.board.Board;
+import com.chess.board.Color;
 import com.chess.board.Piece;
+import com.chess.board.PieceType;
 import com.chess.board.Position;
+import com.chess.rules.GameStateChecker;
+import com.chess.rules.MoveHistory;
+import com.chess.rules.MoveValidator;
+import com.chess.rules.SpecialMovesHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +17,10 @@ import java.awt.event.ActionListener;
 
 public class ChessUI extends JFrame {
     private Board board;
+    private MoveHistory moveHistory;
+    private MoveValidator moveValidator;
+    private SpecialMovesHandler specialMovesHandler;
+    private GameStateChecker gameStateChecker;
     private JPanel boardPanel;
     private JButton[][] buttons;
     private Position selectedPosition;
@@ -37,9 +47,9 @@ public class ChessUI extends JFrame {
                 
                 // Couleurs alternées
                 if ((i + j) % 2 == 0) {
-                    button.setBackground(new Color(240, 217, 181)); // Cases claires
+                    button.setBackground(new java.awt.Color(240, 217, 181)); // Cases claires
                 } else {
-                    button.setBackground(new Color(181, 136, 99)); // Cases sombres
+                    button.setBackground(new java.awt.Color(181, 136, 99)); // Cases sombres
                 }
                 
                 button.setBorderPainted(false);
@@ -69,9 +79,16 @@ public class ChessUI extends JFrame {
         
         add(mainPanel);
         
+        // Initialiser le plateau et les règles
         board = new Board();
         board.initializeBoard();
+        moveHistory = new MoveHistory();
+        moveValidator = new MoveValidator(board, moveHistory);
+        specialMovesHandler = new SpecialMovesHandler(board, moveHistory);
+        gameStateChecker = new GameStateChecker(board, moveValidator);
+        
         updateBoardUI();
+        updateGameStatus();
     }
 
     private void updateBoardUI() {
@@ -85,9 +102,9 @@ public class ChessUI extends JFrame {
                     button.setText(piece.getSymbol());
                     // Couleur du texte selon la couleur de la pièce
                     if (piece.getColor() == com.chess.board.Color.WHITE) {
-                        button.setForeground(Color.WHITE);
+                        button.setForeground(java.awt.Color.WHITE);
                     } else {
-                        button.setForeground(Color.BLACK);
+                        button.setForeground(java.awt.Color.BLACK);
                     }
                 } else {
                     button.setText("");
@@ -95,9 +112,9 @@ public class ChessUI extends JFrame {
                 
                 // Réinitialiser la couleur de fond
                 if ((i + j) % 2 == 0) {
-                    button.setBackground(new Color(240, 217, 181));
+                    button.setBackground(new java.awt.Color(240, 217, 181));
                 } else {
-                    button.setBackground(new Color(181, 136, 99));
+                    button.setBackground(new java.awt.Color(181, 136, 99));
                 }
             }
         }
@@ -147,34 +164,114 @@ public class ChessUI extends JFrame {
             return;
         }
         
-        // Déplacer la pièce simplement (sans validation des règles)
-        Piece capturedPiece = board.getPieceAt(to);
+        // Vérifier si c'est un coup spécial
+        if (specialMovesHandler.isSpecialMove(from, to)) {
+            PieceType promotionType = null;
+            if (specialMovesHandler.isPromotion(from, to)) {
+                // Demander au joueur quelle pièce choisir pour la promotion
+                promotionType = askForPromotion();
+                if (promotionType == null) {
+                    updateStatus("Promotion annulée.");
+                    return;
+                }
+            }
+            
+            // Récupérer la pièce capturée avant le mouvement (si prise en passant, elle est à une position différente)
+            Piece capturedPiece = null;
+            if (specialMovesHandler.isEnPassant(from, to)) {
+                Position capturedPos = moveHistory.getEnPassantCapturedPawnPosition(to);
+                if (capturedPos != null) {
+                    capturedPiece = board.getPieceAt(capturedPos);
+                }
+            } else {
+                capturedPiece = board.getPieceAt(to);
+            }
+            
+            if (specialMovesHandler.executeSpecialMove(from, to, promotionType)) {
+                // Enregistrer le coup dans l'historique
+                moveHistory.addMove(from, to, piece, capturedPiece, board);
+                board.switchPlayer();
+                
+                clearHighlights();
+                selectedPosition = null;
+                updateBoardUI();
+                updateGameStatus();
+                return;
+            } else {
+                updateStatus("Coup spécial invalide !");
+                return;
+            }
+        }
         
-        // Capturer la pièce à la position d'arrivée si elle existe
-        if (capturedPiece != null) {
-            board.getCapturedPieces().add(capturedPiece);
+        // Valider le coup normal avec MoveValidator
+        if (!moveValidator.isValidMove(from, to)) {
+            updateStatus("Coup invalide ! Le roi ne peut pas être mis en échec.");
+            return;
         }
         
         // Effectuer le déplacement
-        board.setPieceAt(from, null);
-        board.setPieceAt(to, piece);
-        piece.setPosition(to);
-        piece.markAsMoved();
+        Piece capturedPiece = board.getPieceAt(to);
+        board.movePiece(from, to);
         
-        // Changer de joueur
-        board.switchPlayer();
+        // Enregistrer le coup dans l'historique
+        moveHistory.addMove(from, to, piece, capturedPiece, board);
         
         // Mettre à jour l'affichage
         clearHighlights();
         selectedPosition = null;
         updateBoardUI();
-        updateStatus("Pièce déplacée ! Tour des " + board.getCurrentPlayer().getDisplayName());
+        updateGameStatus();
+    }
+    
+    private PieceType askForPromotion() {
+        String[] options = {"Dame", "Tour", "Fou", "Cavalier"};
+        int choice = JOptionPane.showOptionDialog(
+            this,
+            "En quelle pièce souhaitez-vous promouvoir votre pion ?",
+            "Promotion du pion",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
+        
+        return switch (choice) {
+            case 0 -> PieceType.QUEEN;
+            case 1 -> PieceType.ROOK;
+            case 2 -> PieceType.BISHOP;
+            case 3 -> PieceType.KNIGHT;
+            default -> null;
+        };
+    }
+    
+    private void updateGameStatus() {
+        GameStateChecker.GameState state = gameStateChecker.getGameState(moveHistory);
+        Color currentPlayer = board.getCurrentPlayer();
+        
+        switch (state) {
+            case CHECKMATE:
+                updateStatus("Échec et mat ! Les " + currentPlayer.opposite().getDisplayName() + " ont gagné !");
+                break;
+            case STALEMATE:
+                updateStatus("Pat ! La partie est nulle.");
+                break;
+            case DRAW:
+                updateStatus("Nulle ! " + state.getDescription());
+                break;
+            case CHECK:
+                updateStatus("Échec ! Tour des " + currentPlayer.getDisplayName());
+                break;
+            default:
+                updateStatus("Tour des " + currentPlayer.getDisplayName());
+                break;
+        }
     }
     
     private void highlightSelectedSquare() {
         if (selectedPosition != null) {
             JButton button = buttons[selectedPosition.getRow()][selectedPosition.getColumn()];
-            button.setBackground(Color.YELLOW);
+            button.setBackground(java.awt.Color.YELLOW);
         }
     }
     
@@ -183,9 +280,9 @@ public class ChessUI extends JFrame {
             for (int j = 0; j < 8; j++) {
                 JButton button = buttons[i][j];
                 if ((i + j) % 2 == 0) {
-                    button.setBackground(new Color(240, 217, 181));
+                    button.setBackground(new java.awt.Color(240, 217, 181));
                 } else {
-                    button.setBackground(new Color(181, 136, 99));
+                    button.setBackground(new java.awt.Color(181, 136, 99));
                 }
             }
         }
