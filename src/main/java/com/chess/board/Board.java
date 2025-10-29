@@ -280,6 +280,16 @@ public class Board {
     }
     
     /**
+     * Ajoute une pièce capturée à la liste.
+     * @param piece la pièce capturée
+     */
+    public void addCapturedPiece(Piece piece) {
+        if (piece != null) {
+            capturedPieces.add(piece);
+        }
+    }
+    
+    /**
      * Retourne une représentation textuelle du plateau.
      * @return la représentation du plateau
      */
