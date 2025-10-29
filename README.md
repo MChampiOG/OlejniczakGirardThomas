@@ -1,61 +1,102 @@
+# Jeu d'Échecs en Java
 
-### Projets des étudiants en BUT Info 2025-2026
+Application de jeu d'échecs complète avec interface graphique développée en Java 17.
 
-# Projet de Développement de Jeux 
-## Langage de programmation au choix
+## Fonctionnalités
 
-## Introduction : 
+- **Plateau d'échecs complet** avec toutes les pièces
+- **Validation des coups** selon les règles officielles
+- **Règles spéciales** : roque, prise en passant, promotion
+- **Détection de l'état du jeu** : échec, échec et mat, pat, nulle
+- **Interface graphique** intuitive avec Swing
+- **47 tests unitaires** (100% de réussite)
 
-Vous êtes chargé de travailler en groupe sur un projet de développement de jeux. Les jeux disponibles pour le projet sont :
--	Pac-Man
--	Space Invaders (ou autre Shoot ‘Em Up)
--	Jeu de Dame (ou jeu d'échec)
--	Pong
--	Morpion 
--	Puissance 4
--	Othello
--	Autres petits jeux simples
+## Lancement rapide
 
-Chaque groupe, composé de 3 à 4 étudiants, devra choisir l'un de ces jeux, développer le code en respectant les normes de codage, rédiger un cahier des charges, un plan de test et une documentation technique complète, effectuer des tests unitaires avec un framework de test, pousser le code sur GitHub et effectuer une revue de code sur les pull-request.
+### Option 1 : Script simple (recommandé)
 
-## Tâches à Réaliser :
+```bash
+./play.sh     # Sur Linux/Mac
+play.bat      # Sur Windows
+```
 
-#### 1.	Code et Commentaire :
--	Développez le jeu en respectant les normes de codage.
--	Commentez le code de manière claire et explicative.
-#### 2.	Cahier des charges :
--	Rédigez un cahier des charges décrivant les fonctionnalités, les règles du jeu, les objectifs et les spécifications techniques.
-#### 3.	Plan de Test :
--	Élaborez un plan de test détaillé, y compris les scénarios de test, les données de test et les critères d'acceptation. (Plan de test simplifié, sans analyses des risques, juste l’ensemble de vos tests, les critère d’acceptations, et la validation du test)
-#### 4.	Documentation Technique :
--	Créez une documentation technique complète expliquant l'architecture du jeu et la structure du code.
-#### 5.	Tests Unitaires :
--	Implémentez des tests unitaires pour valider le bon fonctionnement du code du jeu.
-#### 6.	GitHub :
--	Créez un répertoire sur GitHub : https://github.com/TMareIUT/Projects2024/  
-[Vos Noms de Famille]_Projet
-Faites en un fork et poussez régulièrement le code source, la documentation, le plan de test et les tests unitaires. N’hésitez pas à faire de multiples Pull-Request.
-#### 7.	Revue de Code :
--	Effectuez une revue de code en utilisant les pull-request sur GitHub pour examiner le code de vos collègues et fournir des commentaires constructifs.
+### Option 2 : Utiliser le JAR exécutable
 
+```bash
+java -jar chess-game.jar
+```
 
+**Note** : Sur Linux, si vous avez des problèmes graphiques, utilisez Java 17 :
+```bash
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar chess-game.jar
+```
 
-## Éléments de Notation (4 Notes) :
+### Option 3 : Compiler et lancer avec Maven
 
--	Le code (Coef 2) : La notation dépendra de la lisibilité, de la maintenabilité, de l'efficacité et de la conformité aux normes de codage et des commentaires.
--	Les tests (Coef 2) : La notation dépendra de la couverture des tests, de la pertinence de tests et de la détection d'erreurs et du plan de test fournit.
--	La documentation (Coef 1) : La notation dépendra de l'exhaustivité, de la clarté et de la précision de la documentation technique et du cahier des charges.
--	Assiduité (Coef 0,5) : Comme nous avons plusieurs heures de TP devant nous, l’assiduité sera également notée, j’entends par là, un développement poussé régulièrement sur Github, assurez-vous d’avoir un repo public afin que je puisse vérifier 
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.chess.ChessGame"
+```
 
-## Conseils :
+## Prérequis
 
--	Certains jeux sont plus difficiles à coder que d’autre. Choisissez ce qui vous semble le plus appropriez pour votre niveau de développement. 
--	Commencez par bien comprendre les règles du jeu que vous avez choisi. 
--	Organisez-vous en groupe de manière efficace, en attribuant des rôles et des tâches.
--	Une tâche -> Une branche -> Une pull-request
+- **Java 17** ou supérieur
+- **Maven 3.6+** (pour la compilation)
+- Environnement graphique (X11 sur Linux, natif sur Windows/Mac)
 
-## Remarques :
+## Tests
 
--	Certains iront puiser du code sur le Net. Assurez vous de ne pas rendre le même code qu’un autre groupe, sinon la note pour le code sera de 0.
--	Je ne noterai pas en fonctions du jeu / de la difficulté choisie mais sur la qualité de code et les commentaires.
--	Le langage de programmation étant au choix, je dois comprendre votre code avec les commentaires et la documentation technique.
+Exécuter tous les tests :
+
+```bash
+mvn test
+```
+
+Les tests couvrent :
+- Validation des mouvements des pièces
+- Règles spéciales (roque, en passant, promotion)
+- Détection d'échec, mat et pat
+- Logique du plateau
+
+## Structure du projet
+
+```
+src/
+├── main/java/com/chess/
+│   ├── ChessGame.java              # Point d'entrée
+│   ├── board/                      # Logique du plateau et des pièces
+│   │   ├── Board.java
+│   │   ├── Piece.java
+│   │   ├── Position.java
+│   │   └── [King, Queen, Rook, Bishop, Knight, Pawn].java
+│   ├── rules/                      # Moteur de règles
+│   │   ├── MoveValidator.java
+│   │   ├── SpecialMovesHandler.java
+│   │   ├── GameStateChecker.java
+│   │   └── MoveHistory.java
+│   └── ui/                         # Interface graphique
+│       └── ChessUI.java
+└── test/java/com/chess/            # Tests unitaires
+```
+
+## Comment jouer
+
+1. Lancez l'application
+2. Cliquez sur une pièce pour la sélectionner
+3. Cliquez sur une case de destination pour déplacer la pièce
+4. Les coups invalides sont rejetés automatiquement
+5. Le statut du jeu s'affiche en haut (tour du joueur, échec, mat, etc.)
+
+## Règles implémentées
+
+- ✅ Mouvements standards de toutes les pièces
+- ✅ Roque (petit et grand)
+- ✅ Prise en passant
+- ✅ Promotion du pion (choix de la pièce)
+- ✅ Détection d'échec
+- ✅ Détection d'échec et mat
+- ✅ Détection de pat
+- ✅ Nulle par répétition triple
+- ✅ Règle des 50 coups
+- ✅ Matériel insuffisant
+
